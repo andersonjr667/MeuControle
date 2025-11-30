@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard - Gestão Financeira</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <script src="../js/header.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  
+
+  <main class="container">
+    <div class="page-head">
+      <h2>Dashboard</h2>
+      <div class="page-actions">
+        <button id="btnViewTransactions">Ver Transações</button>
+        <button id="btnExportExcel">Exportar Excel</button>
+      </div>
+    </div>
+    <div id="indicators">
+      <div class="card income">Entradas<br><strong id="totalIncome">0</strong></div>
+      <div class="card expense">Saídas<br><strong id="totalExpense">0</strong></div>
+      <div class="card balance">Saldo<br><strong id="balance">0</strong></div>
+      <div class="card debtors">Devedores Recebido<br><strong id="totalDebtorReceived">R$ 0,00</strong></div>
+      <div class="card debtors">Devedores Devido<br><strong id="totalDebtorLent">R$ 0,00</strong></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-col">
+        <h3>Gastos por Categoria</h3>
+        <div class="chart-wrap"><canvas id="pieChart" width="320" height="220"></canvas></div>
+      </div>
+      <div class="chart-col">
+        <h3>Saldo Mensal</h3>
+        <div class="chart-wrap"><canvas id="lineChart" width="600" height="300"></canvas></div>
+      </div>
+    </div>
+
+    <h3>Últimas transações</h3>
+    <ul id="recentTransactions" class="recent-list"></ul>
+  <div id="loadingOverlay" class="hidden"><div class="spinner" aria-hidden="true"></div><div>Carregando...</div></div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

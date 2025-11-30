@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Transações - Gestão Financeira</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/transactions.css">
+  <script src="../js/header.js"></script>
+</head>
+<body>
+
+  <main class="container">
+    <h2>Transações</h2>
+    <div>
+      <button id="btnNew">Adicionar Transação</button>
+    </div>
+    <table id="transactionsTable">
+      <thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <!-- Modal simples -->
+    <div id="modal" class="modal hidden">
+      <form id="transactionForm" class="modal-content">
+        <h3 id="modalTitle">Nova transação</h3>
+        <label>Tipo<select name="type"><option value="income">Entrada</option><option value="expense">Saída</option></select></label>
+        <label>Data <input type="date" name="date" required></label>
+        <label>Descrição <input type="text" name="description"></label>
+        <label>Categoria <select name="category_id"><option value="">-- Nenhuma --</option></select></label>
+        <label>Método de pagamento <select name="payment_method_id"><option value="">-- Nenhum --</option></select></label>
+  <label>Valor (R$) <input type="text" name="amount" required placeholder="Ex: 10,50"></label>
+        <input type="hidden" name="id">
+        <button type="submit">Salvar</button>
+        <button type="button" id="btnCancel">Cancelar</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/transactions.js"></script>
+</body>
+</html>

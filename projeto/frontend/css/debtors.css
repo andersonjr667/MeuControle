@@ -1,0 +1,33 @@
+/* Debtors page styles */
+/* Debtors page styles */
+#debtorsList{background:var(--card);padding:8px;border-radius:8px;list-style:none}
+#debtorsList li{padding:12px;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;border-radius:6px;margin-bottom:8px}
+#debtorsList .left{display:flex;flex-direction:column}
+#debtorsList .name{font-weight:700}
+#debtorsList .balance{color:#333}
+#debtorsList .actions{display:flex;gap:8px}
+#btnAddDebtor{background:var(--accent);color:#fff;border:none;padding:.5rem;border-radius:6px}
+
+/* Modal */
+.modal{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal.hidden{display:none}
+.modal-content{background:var(--bg);padding:16px;border-radius:8px;min-width:320px;max-width:720px;width:100%;box-shadow:0 12px 36px rgba(0,0,0,0.12)}
+.modal-content h3{margin-top:0}
+.modal-content label{display:block;margin:8px 0}
+.modal-content input[type='text'], .modal-content input[type='date']{width:100%;padding:8px;border:1px solid rgba(0,0,0,0.08);border-radius:6px}
+.modal-content button{margin-top:8px}
+.modal-content button + button{margin-left:8px}
+
+/* history styling */
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px dashed rgba(0,0,0,0.04)}
+.tx-left{display:flex;flex-direction:column}
+.tx-date{font-size:.85rem;color:#666}
+.tx-desc{font-size:.95rem}
+.tx-amount{font-weight:700}
+.tx-amount.positive{color:var(--accent)}
+.tx-amount.negative{color:#d9534f}
+
+.debtor-summary{display:flex;gap:1rem;margin:8px 0 12px}
+.debtor-summary div{background:var(--card);padding:.5rem;border-radius:6px}
+.debtor-quick-actions{display:flex;gap:.5rem;margin-bottom:.5rem}
+.debtor-quick-actions button{padding:.4rem .6rem;border-radius:6px;border:1px solid rgba(0,0,0,0.06)}

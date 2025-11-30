@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Configurações - Gestão Financeira</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/settings.css">
+  <script src="../js/header.js"></script>
+</head>
+<body>
+
+  <main class="container">
+    <h2>Configurações</h2>
+    <div class="settings-actions" style="margin-bottom:12px;">
+      <button id="btnRestoreDefaults" class="btn btn-secondary">Restaurar padrões</button>
+    </div>
+    <div class="settings-grid">
+      <section aria-labelledby="incomeTitle">
+        <div class="section-header">
+          <h3 id="incomeTitle">Categorias de Entrada</h3>
+          <button id="btnNewIncome" class="btn btn-primary">Adicionar</button>
+        </div>
+        <p class="empty" id="emptyIncome">Nenhuma categoria de entrada cadastrada.</p>
+        <ul id="incomeCategories" class="items-list" aria-live="polite"></ul>
+      </section>
+
+      <section aria-labelledby="expenseTitle">
+        <div class="section-header">
+          <h3 id="expenseTitle">Categorias de Saída</h3>
+          <button id="btnNewExpense" class="btn btn-primary">Adicionar</button>
+        </div>
+        <p class="empty" id="emptyExpense">Nenhuma categoria de saída cadastrada.</p>
+        <ul id="expenseCategories" class="items-list" aria-live="polite"></ul>
+      </section>
+
+      <section aria-labelledby="paymentTitle">
+        <div class="section-header">
+          <h3 id="paymentTitle">Métodos de Pagamento</h3>
+          <button id="btnNewPayment" class="btn btn-primary">Adicionar</button>
+        </div>
+        <p class="empty" id="emptyPayment">Nenhum método de pagamento cadastrado.</p>
+        <ul id="paymentMethods" class="items-list" aria-live="polite"></ul>
+      </section>
+    </div>
+
+    <!-- Modal for create/edit -->
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <h4 id="modalTitle">Editar</h4>
+        <form id="modalForm">
+          <label for="modalName">Nome</label>
+          <input id="modalName" name="name" type="text" required minlength="1" />
+          <input type="hidden" id="modalType" />
+          <input type="hidden" id="modalId" />
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/settings.js"></script>
+</body>
+</html>

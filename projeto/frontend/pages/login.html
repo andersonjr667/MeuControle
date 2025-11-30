@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login - Gestão Financeira</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/login.css">
+  <script src="../js/header.js"></script>
+</head>
+<body>
+  
+  <main class="container">
+    <div class="forms-row">
+      <div class="card">
+        <h2>Login</h2>
+        <form id="loginForm" novalidate>
+          <div class="form-row"><label for="loginEmail">Email</label><input id="loginEmail" type="email" name="email" placeholder="seu@exemplo.com" required autofocus></div>
+          <div class="form-row pw-row"><label for="loginPassword">Senha</label><div class="pw-wrap"><input id="loginPassword" type="password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6"><button type="button" class="pw-toggle" data-target="loginPassword" aria-label="Mostrar senha">Mostrar</button></div></div>
+          <div class="checkbox-area"><label class="remember"><input id="rememberMe" type="checkbox" name="remember"> Lembrar-me</label></div>
+          <div class="form-row"><button id="loginBtn" type="submit" class="primary">Entrar</button></div>
+          <div id="loginMessage" class="form-message" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Cadastro</h2>
+        <form id="registerForm">
+          <div class="form-row"><label>Nome <input type="text" name="name" required></label></div>
+          <div class="form-row"><label>Email <input type="email" name="email" required></label></div>
+          <div class="form-row pw-row"><label>Senha <input id="regPassword" type="password" name="password" required minlength="6"></label></div>
+          <div class="form-row"><button type="submit" class="primary">Cadastrar</button></div>
+        </form>
+      </div>
+    </div>
+
+    <p id="message"></p>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+</body>
+</html>

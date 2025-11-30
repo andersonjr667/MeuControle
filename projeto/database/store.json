@@ -1,0 +1,27 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Anderson Jr",
+      "email": "alsj1520@gmail.com",
+      "password_hash": "$2a$10$IfnpjMCgT8Gf6XkE5I5zyuHzshkoaiG4MGeupgv0FVINEzVts9cb.",
+      "created_at": "2025-11-29T21:03:03.822Z",
+      "updated_at": "2025-11-29T21:03:03.822Z"
+    }
+  ],
+  "income_categories": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "name": "Reembolso",
+      "created_at": "2025-11-29T21:07:17.144Z",
+      "updated_at": "2025-11-29T21:07:17.144Z"
+    }
+  ],
+  "expense_categories": [],
+  "payment_methods": [],
+  "investments": [],
+  "transactions": [],
+  "debtors": [],
+  "debt_history": []
+}

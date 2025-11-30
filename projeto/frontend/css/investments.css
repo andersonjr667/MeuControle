@@ -1,0 +1,10 @@
+/* Investments specific styles */
+.invest-summary{background:var(--card);padding:.6rem;border-radius:6px;margin-bottom:.8rem}
+.invest-summary p{margin:0}
+
+.items-list li{display:flex;align-items:center;justify-content:space-between;padding:.6rem;border-bottom:1px solid rgba(0,0,0,0.06)}
+.items-list li .meta{font-size:.85rem;color:#666}
+
+@media (max-width:480px){
+  .items-list li{flex-direction:column;align-items:flex-start}
+}

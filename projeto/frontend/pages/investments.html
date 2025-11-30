@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Investimentos - Gestão Financeira</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/settings.css">
+  <link rel="stylesheet" href="../css/investments.css">
+  <script src="../js/header.js"></script>
+</head>
+<body>
+
+  <main class="container">
+    <h2>Investimentos</h2>
+    <section>
+      <div class="section-header">
+        <h3>Minha Carteira</h3>
+        <button id="btnNewInvestment" class="btn btn-primary">Novo Investimento</button>
+      </div>
+
+      <div class="invest-summary" aria-live="polite">
+        <p>Total Investido: <strong id="totalInvested">R$ 0,00</strong></p>
+      </div>
+
+      <p class="empty" id="emptyInvestments">Nenhum investimento registrado.</p>
+      <ul id="investmentsList" class="items-list"></ul>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="invModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" id="invBackdrop"></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="invModalTitle">
+      <h4 id="invModalTitle">Novo investimento</h4>
+      <form id="invForm">
+        <label for="invName">Nome</label>
+        <input id="invName" name="name" type="text" required />
+
+        <label for="invType">Tipo</label>
+        <select id="invType" name="type">
+          <option value="tesouro">Tesouro</option>
+          <option value="acao">Ação</option>
+          <option value="fii">FII</option>
+          <option value="renda_fixa">Renda Fixa</option>
+          <option value="outro">Outro</option>
+        </select>
+
+        <label for="invAmount">Valor investido (R$)</label>
+        <input id="invAmount" name="amount" type="number" step="0.01" min="0" required />
+
+        <label for="invDate">Data</label>
+        <input id="invDate" name="date" type="date" />
+
+        <input type="hidden" id="invId" />
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Salvar</button>
+          <button type="button" class="btn btn-secondary" id="invCancel">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/investments.js"></script>
+</body>
+</html>

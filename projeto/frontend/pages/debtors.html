@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Devedores - Gestão Financeira</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/debtors.css">
+  <script src="../js/header.js"></script>
+</head>
+<body>
+
+  <main class="container">
+    <h2>Devedores</h2>
+    <div>
+      <button id="btnAddDebtor">Adicionar Devedor</button>
+    </div>
+    <ul id="debtorsList"></ul>
+
+    <!-- Debtor modal -->
+    <div id="debtorModal" class="modal hidden">
+      <div class="modal-content">
+        <h3 id="debtorModalTitle">Devedor</h3>
+        <div id="debtorInfo"></div>
+        <h4>Histórico</h4>
+        <ul id="debtorHistory" class="recent-list"></ul>
+
+        <form id="movementForm">
+          <h4 id="movementHeading">Adicionar movimento</h4>
+          <label>Data <input type="date" name="date" required></label>
+          <label style="display:block;margin-bottom:.6rem">Tipo de movimento
+            <select name="direction" id="directionSelect" style="margin-left:.5rem">
+              <option value="paid">Pagou</option>
+              <option value="lent">Emprestou</option>
+            </select>
+          </label>
+          <label>Valor (use apenas números, ex: 150,00) <input type="text" name="movement" placeholder="Ex: 150,00" required></label>
+          <label>Descrição <input type="text" name="description"></label>
+          <input type="hidden" name="debtor_id">
+          <button type="submit">Adicionar</button>
+          <button type="button" id="btnCloseDebtor">Fechar</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/debtors.js"></script>
+</body>
+</html>
