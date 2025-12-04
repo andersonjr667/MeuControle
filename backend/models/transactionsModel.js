@@ -1,22 +1,36 @@
 const jsonStore = require('../config/jsonStore');
+const { isConnected } = require('../config/db');
+const TransactionSchema = require('./schemas/Transaction');
 
 class TransactionsModel {
   // Criar nova transação
   async create(transactionData) {
     try {
-      const transaction = {
-        id: this.generateId(),
-        userId: transactionData.userId,
-        type: transactionData.type, // entrada, saida
-        category: transactionData.category || '',
-        amount: parseFloat(transactionData.amount) || 0,
-        description: transactionData.description || '',
-        date: transactionData.date || new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      return jsonStore.addItem('transactions', transaction);
+      if (isConnected()) {
+        const transaction = new TransactionSchema({
+          userId: transactionData.userId,
+          type: transactionData.type,
+          category: transactionData.category || '',
+          amount: parseFloat(transactionData.amount) || 0,
+          description: transactionData.description || '',
+          date: transactionData.date || new Date()
+        });
+        const saved = await transaction.save();
+        return saved.toJSON();
+      } else {
+        const transaction = {
+          id: this.generateId(),
+          userId: transactionData.userId,
+          type: transactionData.type,
+          category: transactionData.category || '',
+          amount: parseFloat(transactionData.amount) || 0,
+          description: transactionData.description || '',
+          date: transactionData.date || new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        return jsonStore.addItem('transactions', transaction);
+      }
     } catch (error) {
       throw error;
     }
@@ -25,7 +39,12 @@ class TransactionsModel {
   // Buscar todas as transações de um usuário
   async findByUserId(userId) {
     try {
-      return jsonStore.findAll('transactions', transaction => transaction.userId === userId);
+      if (isConnected()) {
+        const transactions = await TransactionSchema.find({ userId }).sort({ date: -1 });
+        return transactions.map(t => t.toJSON());
+      } else {
+        return jsonStore.findAll('transactions', transaction => transaction.userId === userId);
+      }
     } catch (error) {
       throw error;
     }
@@ -34,7 +53,12 @@ class TransactionsModel {
   // Buscar transação por ID
   async findById(id) {
     try {
-      return jsonStore.findById('transactions', id);
+      if (isConnected()) {
+        const transaction = await TransactionSchema.findById(id);
+        return transaction ? transaction.toJSON() : null;
+      } else {
+        return jsonStore.findById('transactions', id);
+      }
     } catch (error) {
       throw error;
     }
@@ -43,7 +67,12 @@ class TransactionsModel {
   // Listar todas as transações
   async findAll() {
     try {
-      return jsonStore.getTable('transactions');
+      if (isConnected()) {
+        const transactions = await TransactionSchema.find().sort({ date: -1 });
+        return transactions.map(t => t.toJSON());
+      } else {
+        return jsonStore.getTable('transactions');
+      }
     } catch (error) {
       throw error;
     }
@@ -52,11 +81,23 @@ class TransactionsModel {
   // Atualizar transação
   async update(id, updates) {
     try {
-      if (updates.amount) {
-        updates.amount = parseFloat(updates.amount);
+      if (isConnected()) {
+        if (updates.amount) {
+          updates.amount = parseFloat(updates.amount);
+        }
+        const transaction = await TransactionSchema.findByIdAndUpdate(
+          id,
+          { $set: updates },
+          { new: true, runValidators: true }
+        );
+        return transaction ? transaction.toJSON() : null;
+      } else {
+        if (updates.amount) {
+          updates.amount = parseFloat(updates.amount);
+        }
+        updates.updatedAt = new Date().toISOString();
+        return jsonStore.updateItem('transactions', id, updates);
       }
-      updates.updatedAt = new Date().toISOString();
-      return jsonStore.updateItem('transactions', id, updates);
     } catch (error) {
       throw error;
     }
@@ -65,7 +106,12 @@ class TransactionsModel {
   // Deletar transação
   async delete(id) {
     try {
-      return jsonStore.deleteItem('transactions', id);
+      if (isConnected()) {
+        const transaction = await TransactionSchema.findByIdAndDelete(id);
+        return transaction ? transaction.toJSON() : null;
+      } else {
+        return jsonStore.deleteItem('transactions', id);
+      }
     } catch (error) {
       throw error;
     }

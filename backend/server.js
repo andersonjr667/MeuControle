@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const { connectDB } = require('./config/db');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
@@ -12,7 +13,12 @@ const debtHistoryRoutes = require('./routes/debtHistory');
 const settingsRoutes = require('./routes/settings');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
+
+// Conectar ao MongoDB
+connectDB().catch(err => {
+  console.log('Servidor iniciará com armazenamento local');
+});
 
 // Middleware
 app.use(cors());

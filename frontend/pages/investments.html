@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="/css/header.css">
   <link rel="stylesheet" href="/css/investments.css">
   <link rel="stylesheet" href="/css/icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div id="header-container"></div>
   <div id="header-container"></div>
 
   <div class="container">
@@ -21,6 +21,177 @@
     <div class="filter-bar">
       <div class="filter-group">
         <button class="btn btn-primary" id="add-investment-btn">+ Novo Investimento</button>
+        <button class="btn btn-secondary" id="toggle-simulator-btn">
+          <span class="icon-chart"></span> Simular Investimento
+        </button>
+      </div>
+    </div>
+
+    <!-- Simulador de Investimentos (inicialmente oculto) -->
+    <div class="card simulator-card" id="simulator-card" style="display: none;">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="icon-chart"></span> Simulador de Investimentos
+        </h2>
+        <button class="close-simulator-btn" id="close-simulator-btn">&times;</button>
+      </div>
+      <div class="simulator-content">
+        <!-- Tabs de Tipo de Investimento -->
+        <div class="investment-tabs">
+          <button class="tab-btn active" data-type="custom" onclick="selectInvestmentType('custom')">Personalizado</button>
+          <button class="tab-btn" data-type="savings" onclick="selectInvestmentType('savings')">Poupança</button>
+          <button class="tab-btn" data-type="cdi" onclick="selectInvestmentType('cdi')">CDI</button>
+          <button class="tab-btn" data-type="stocks" onclick="selectInvestmentType('stocks')">Ações</button>
+          <button class="tab-btn" data-type="real-estate" onclick="selectInvestmentType('real-estate')">Imóveis</button>
+        </div>
+
+        <!-- Presets Rápidos -->
+        <div class="quick-presets">
+          <button class="preset-btn" onclick="applyPreset(1000, 100, 5)">Iniciante</button>
+          <button class="preset-btn" onclick="applyPreset(5000, 500, 10)">Intermediário</button>
+          <button class="preset-btn" onclick="applyPreset(10000, 1000, 20)">Avançado</button>
+          <button class="preset-btn" onclick="applyPreset(50000, 5000, 30)">Premium</button>
+        </div>
+
+        <div class="simulator-inputs">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sim-initial">
+                <span class="icon-money"></span> Investimento Inicial (R$)
+              </label>
+              <input type="number" id="sim-initial" min="0" step="0.01" value="1000" placeholder="1000.00">
+              <small class="input-hint">Quanto você tem para investir agora</small>
+            </div>
+            <div class="form-group">
+              <label for="sim-monthly">
+                <span class="icon-transaction"></span> Aporte Mensal (R$)
+              </label>
+              <input type="number" id="sim-monthly" min="0" step="0.01" value="100" placeholder="100.00">
+              <small class="input-hint">Quanto você investirá todo mês</small>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sim-rate">
+                <span class="icon-chart"></span> Taxa de Retorno Anual (%)
+              </label>
+              <input type="number" id="sim-rate" min="0" max="100" step="0.1" value="10" placeholder="10.0">
+              <small class="input-hint">Rendimento esperado por ano</small>
+            </div>
+            <div class="form-group">
+              <label for="sim-period">
+                <span class="icon-settings"></span> Período (anos)
+              </label>
+              <input type="number" id="sim-period" min="1" max="50" value="5" placeholder="5">
+              <small class="input-hint">Por quanto tempo você investirá</small>
+            </div>
+          </div>
+          
+          <!-- Opções Avançadas -->
+          <div class="advanced-options" id="advanced-options" style="display: none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="sim-inflation">
+                  <span class="icon-settings"></span> Inflação Anual (%)
+                </label>
+                <input type="number" id="sim-inflation" min="0" max="100" step="0.1" value="4.5" placeholder="4.5">
+                <small class="input-hint">Inflação estimada (IPCA ~4.5%)</small>
+              </div>
+              <div class="form-group">
+                <label for="sim-tax">
+                  <span class="icon-settings"></span> Imposto sobre Ganhos (%)
+                </label>
+                <input type="number" id="sim-tax" min="0" max="100" step="0.1" value="15" placeholder="15">
+                <small class="input-hint">IR sobre rendimentos (15-22.5%)</small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="sim-increase">
+                  <span class="icon-chart"></span> Aumento Anual do Aporte (%)
+                </label>
+                <input type="number" id="sim-increase" min="0" max="100" step="0.1" value="0" placeholder="0">
+                <small class="input-hint">Aumento anual dos aportes mensais</small>
+              </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="sim-compound" checked>
+                  Juros Compostos Mensais
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-link" onclick="toggleAdvancedOptions()">
+            <span id="toggle-text">Mostrar Opções Avançadas</span>
+          </button>
+          
+          <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="resetSimulator()">
+              Limpar
+            </button>
+            <button type="button" class="btn btn-primary btn-simulate" onclick="simulateInvestment()">
+              <span class="icon-chart"></span> Calcular Simulação
+            </button>
+          </div>
+        </div>
+        <div class="simulator-results" id="simulator-results" style="display: none;">
+          <h3 class="results-title">Resultados da Simulação</h3>
+          <div class="result-grid">
+            <div class="result-item">
+              <span class="result-label">Total Investido</span>
+              <span class="result-value invested" id="result-invested">R$ 0,00</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Rendimento Bruto</span>
+              <span class="result-value earnings" id="result-earnings">R$ 0,00</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Imposto Retido</span>
+              <span class="result-value tax" id="result-tax">R$ 0,00</span>
+            </div>
+            <div class="result-item highlight">
+              <span class="result-label">Montante Final</span>
+              <span class="result-value total" id="result-total">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Métricas Adicionais -->
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <span class="metric-label">Retorno Total</span>
+              <span class="metric-value" id="metric-return">0%</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Retorno Anual Médio</span>
+              <span class="metric-value" id="metric-yearly">0%</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Valor Real (descontada inflação)</span>
+              <span class="metric-value" id="metric-real">R$ 0,00</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Ganho Real</span>
+              <span class="metric-value" id="metric-real-gain">R$ 0,00</span>
+            </div>
+          </div>
+
+          <div class="chart-container-sim">
+            <canvas id="simulation-chart"></canvas>
+          </div>
+
+          <!-- Comparação com Outros Investimentos -->
+          <div class="comparison-section" id="comparison-section">
+            <h4 class="comparison-title">Comparação com Outros Investimentos</h4>
+            <div class="comparison-grid" id="comparison-grid"></div>
+          </div>
+
+          <div class="simulation-info">
+            <p><strong>Período:</strong> <span id="info-period"></span> meses (<span id="info-years"></span> anos)</p>
+            <p><strong>Aportes Mensais:</strong> <span id="info-contributions"></span></p>
+            <p><strong>Rendimento Médio Mensal:</strong> <span id="info-monthly-return" class="positive"></span></p>
+          </div>
+        </div>
       </div>
     </div>
 
