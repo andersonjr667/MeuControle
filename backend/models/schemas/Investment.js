@@ -28,6 +28,11 @@ const InvestmentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  cdiPercent: {
+    type: Number,
+    min: 0,
+    max: 200
+  },
   description: {
     type: String,
     trim: true

@@ -3,6 +3,43 @@ let monthlyChart = null;
 let expensesChart = null;
 let evolutionChart = null;
 
+// Calcular valor atual e rendimento do investimento
+function calculateInvestmentEarnings(investment) {
+  if (!investment.returnRate || investment.returnRate <= 0 || investment.status !== 'ativo') {
+    return {
+      currentValue: investment.amount,
+      earnings: 0,
+      daysElapsed: 0
+    };
+  }
+
+  const startDate = new Date(investment.startDate);
+  const today = new Date();
+  const daysElapsed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+  
+  if (daysElapsed <= 0) {
+    return {
+      currentValue: investment.initialAmount || investment.amount,
+      earnings: 0,
+      daysElapsed: 0
+    };
+  }
+
+  // Cálculo de juros compostos diários
+  const initialAmount = investment.initialAmount || investment.amount;
+  const annualRate = investment.returnRate / 100;
+  const dailyRate = Math.pow(1 + annualRate, 1/365) - 1;
+  const currentValue = initialAmount * Math.pow(1 + dailyRate, daysElapsed);
+  const earnings = currentValue - initialAmount;
+
+  return {
+    currentValue: currentValue,
+    earnings: earnings,
+    daysElapsed: daysElapsed,
+    returnPercentage: (earnings / initialAmount) * 100
+  };
+}
+
 // Carregar dados do dashboard
 async function loadDashboard() {
   try {
@@ -13,15 +50,19 @@ async function loadDashboard() {
         `R$ ${balanceResponse.data.saldo.toFixed(2).replace('.', ',')}`;
     }
 
-    // Carregar total investido
+    // Carregar total de rendimento dos investimentos
     const investmentsResponse = await api.getInvestments();
     if (investmentsResponse.data.sucesso) {
-      const totalInvested = investmentsResponse.data.investimentos
-        .filter(inv => inv.status === 'ativo')
-        .reduce((sum, inv) => sum + inv.amount, 0);
+      const activeInvestments = investmentsResponse.data.investimentos.filter(inv => inv.status === 'ativo');
+      
+      // Calcular apenas o rendimento (lucro), não o valor total
+      const totalEarnings = activeInvestments.reduce((sum, inv) => {
+        const calc = calculateInvestmentEarnings(inv);
+        return sum + calc.earnings;
+      }, 0);
       
       document.getElementById('total-investments').textContent = 
-        `R$ ${totalInvested.toFixed(2).replace('.', ',')}`;
+        `R$ ${totalEarnings.toFixed(2).replace('.', ',')}`;
       
       // Mostrar investimentos ativos
       displayActiveInvestments(investmentsResponse.data.investimentos);
@@ -31,7 +72,11 @@ async function loadDashboard() {
     const debtorsResponse = await api.getDebtors();
     if (debtorsResponse.data.sucesso) {
       const totalDebts = debtorsResponse.data.devedores
-        .filter(debtor => debtor.status !== 'pago')
+        .filter(debtor => {
+          // considerar 'pago' (valor antigo) ou 'em dia' como quitado
+          const st = (debtor.status || '').toLowerCase();
+          return st !== 'pago' && st !== 'em dia';
+        })
         .reduce((sum, debtor) => sum + debtor.amount, 0);
       
       document.getElementById('total-debts').textContent = 
@@ -115,7 +160,7 @@ function displayRecentDebtors(debtors) {
 
   const recent = debtors.slice(0, 5);
   
-  const html = `
+      const html = `
     <table>
       <thead>
         <tr>
@@ -125,13 +170,18 @@ function displayRecentDebtors(debtors) {
         </tr>
       </thead>
       <tbody>
-        ${recent.map(d => `
+        ${recent.map(d => {
+          // normalizar label/class para exibição
+          const st = (d.status || '').toLowerCase();
+          const label = (st === 'pago' || st === 'em dia') ? 'em dia' : (st || 'pendente');
+          const cls = label.replace(/\s+/g, '-');
+          return `
           <tr>
             <td>${d.name}</td>
             <td class="amount negative">R$ ${d.amount.toFixed(2).replace('.', ',')}</td>
-            <td><span class="status-badge ${d.status}">${d.status}</span></td>
+            <td><span class="status-badge ${cls}">${label}</span></td>
           </tr>
-        `).join('')}
+        `}).join('')}
       </tbody>
     </table>
   `;
@@ -155,19 +205,25 @@ function displayActiveInvestments(investments) {
         <tr>
           <th>Nome</th>
           <th>Tipo</th>
-          <th>Valor Atual</th>
-          <th>Retorno</th>
+          <th>Rendimento</th>
+          <th>Taxa</th>
         </tr>
       </thead>
       <tbody>
-        ${active.map(inv => `
+        ${active.map(inv => {
+          const calc = calculateInvestmentEarnings(inv);
+          return `
           <tr>
             <td>${inv.name}</td>
             <td>${inv.type || 'N/A'}</td>
-            <td class="amount positive">R$ ${inv.amount.toFixed(2).replace('.', ',')}</td>
-            <td class="return-rate">${inv.returnRate}%</td>
+            <td class="amount ${calc.earnings > 0 ? 'positive' : ''}">
+              ${calc.earnings > 0 ? '+' : ''}R$ ${calc.earnings.toFixed(2).replace('.', ',')}
+              ${calc.earnings > 0 ? `<small style="color: #6b7280; font-size: 11px;"> (+${calc.returnPercentage.toFixed(2)}%)</small>` : ''}
+            </td>
+            <td class="return-rate">${inv.returnRate || 0}% a.a.</td>
           </tr>
-        `).join('')}
+          `;
+        }).join('')}
       </tbody>
     </table>
   `;

@@ -42,7 +42,7 @@ tr:hover {
   color: #856404;
 }
 
-.status-badge.pago {
+.status-badge.em-dia {
   background: #d4edda;
   color: #155724;
 }
@@ -52,6 +52,10 @@ tr:hover {
   color: #721c24;
 }
 
+.status-badge.em-dia {
+  background: #d4edda;
+  color: #155724;
+}
 .action-buttons {
   display: flex;
   gap: 8px;

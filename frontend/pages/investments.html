@@ -212,44 +212,95 @@
         <button class="close-btn" id="close-modal">&times;</button>
       </div>
       <form id="investment-form">
-        <div class="form-group">
-          <label for="name">Nome *</label>
-          <input type="text" id="name" required>
+        <!-- Informações Básicas -->
+        <div class="form-section">
+          <h4 class="form-section-title">Informações Básicas</h4>
+          
+          <div class="form-group">
+            <label for="name">Nome do Investimento *</label>
+            <input type="text" id="name" required placeholder="Ex: Tesouro Selic 2027">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type">Tipo de Investimento *</label>
+              <select id="type" required>
+                <option value="">Selecione...</option>
+                <option value="Renda Fixa">Renda Fixa</option>
+                <option value="CDB">CDB</option>
+                <option value="LCI/LCA">LCI/LCA</option>
+                <option value="Tesouro Direto">Tesouro Direto</option>
+                <option value="Ações">Ações</option>
+                <option value="Fundos">Fundos de Investimento</option>
+                <option value="FII">Fundos Imobiliários</option>
+                <option value="Poupança">Poupança</option>
+                <option value="Outros">Outros</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status">
+                <option value="ativo">Ativo</option>
+                <option value="encerrado">Encerrado</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="type">Tipo</label>
-          <input type="text" id="type" placeholder="Ex: Ações, Fundos, Renda Fixa">
+
+        <!-- Valores -->
+        <div class="form-section">
+          <h4 class="form-section-title">Valores</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="amount">Valor Atual (R$) *</label>
+              <input type="number" id="amount" step="0.01" min="0" required placeholder="1000.00">
+              <small class="input-hint">Quanto vale hoje</small>
+            </div>
+            <div class="form-group">
+              <label for="initialAmount">Valor Inicial (R$)</label>
+              <input type="number" id="initialAmount" step="0.01" min="0" placeholder="1000.00">
+              <small class="input-hint">Quanto você investiu</small>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="amount">Valor Atual *</label>
-          <input type="number" id="amount" step="0.01" min="0" required>
+
+        <!-- Rentabilidade -->
+        <div class="form-section">
+          <h4 class="form-section-title">Rentabilidade</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cdiPercent">% do CDI</label>
+              <input type="number" id="cdiPercent" step="0.01" min="0" max="200" placeholder="100">
+              <small class="input-hint">Ex: 100% do CDI = 12.75% a.a.</small>
+            </div>
+            <div class="form-group">
+              <label for="returnRate">Taxa Anual (% a.a.)</label>
+              <input type="number" id="returnRate" step="0.01" placeholder="10.5">
+              <small class="input-hint">Calculado automaticamente ou manual</small>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="initialAmount">Valor Inicial</label>
-          <input type="number" id="initialAmount" step="0.01" min="0">
+
+        <!-- Detalhes Adicionais -->
+        <div class="form-section">
+          <h4 class="form-section-title">Detalhes Adicionais</h4>
+          
+          <div class="form-group">
+            <label for="startDate">Data de Início</label>
+            <input type="date" id="startDate">
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descrição / Observações</label>
+            <textarea id="description" rows="3" placeholder="Informações adicionais sobre o investimento..."></textarea>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="returnRate">Taxa de Retorno (%)</label>
-          <input type="number" id="returnRate" step="0.01">
-        </div>
-        <div class="form-group">
-          <label for="description">Descrição</label>
-          <textarea id="description"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="startDate">Data de Início</label>
-          <input type="date" id="startDate">
-        </div>
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status">
-            <option value="ativo">Ativo</option>
-            <option value="encerrado">Encerrado</option>
-          </select>
-        </div>
+
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" id="cancel-btn">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
+          <button type="submit" class="btn btn-primary">Salvar Investimento</button>
         </div>
       </form>
     </div>

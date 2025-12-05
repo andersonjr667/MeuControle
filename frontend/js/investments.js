@@ -37,15 +37,42 @@ addBtn.addEventListener('click', () => {
 closeBtn.addEventListener('click', () => modal.classList.remove('active'));
 cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
 
+// Auto-calcular rentabilidade baseada no CDI
+const cdiPercentInput = document.getElementById('cdiPercent');
+const returnRateInput = document.getElementById('returnRate');
+
+if (cdiPercentInput) {
+  cdiPercentInput.addEventListener('input', (e) => {
+    const cdiPercent = parseFloat(e.target.value) || 0;
+    if (cdiPercent > 0) {
+      const currentCDI = 12.75; // CDI atual aproximado
+      const calculatedRate = (currentCDI * cdiPercent / 100).toFixed(2);
+      returnRateInput.value = calculatedRate;
+      returnRateInput.style.background = '#f0fdf4';
+      setTimeout(() => returnRateInput.style.background = '', 1000);
+    }
+  });
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const cdiPercent = parseFloat(document.getElementById('cdiPercent').value) || null;
+  let returnRate = parseFloat(document.getElementById('returnRate').value) || 0;
+  
+  // Se % do CDI foi informado, calcular a rentabilidade
+  if (cdiPercent && cdiPercent > 0) {
+    const currentCDI = 12.75;
+    returnRate = (currentCDI * cdiPercent / 100);
+  }
 
   const data = {
     name: document.getElementById('name').value,
     type: document.getElementById('type').value,
     amount: parseFloat(document.getElementById('amount').value),
     initialAmount: parseFloat(document.getElementById('initialAmount').value) || parseFloat(document.getElementById('amount').value),
-    returnRate: parseFloat(document.getElementById('returnRate').value) || 0,
+    returnRate: returnRate,
+    cdiPercent: cdiPercent,
     description: document.getElementById('description').value,
     startDate: document.getElementById('startDate').value,
     status: document.getElementById('status').value
@@ -65,11 +92,80 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
+// Calcular valor atual baseado no tempo e rentabilidade
+function calculateCurrentValue(investment) {
+  if (!investment.returnRate || investment.returnRate <= 0 || investment.status !== 'ativo') {
+    return {
+      currentValue: investment.amount,
+      earnings: 0,
+      daysElapsed: 0,
+      needsUpdate: false
+    };
+  }
+
+  const startDate = new Date(investment.startDate);
+  const today = new Date();
+  const daysElapsed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+  
+  if (daysElapsed <= 0) {
+    return {
+      currentValue: investment.initialAmount || investment.amount,
+      earnings: 0,
+      daysElapsed: 0,
+      needsUpdate: false
+    };
+  }
+
+  // Cálculo de juros compostos diários
+  const initialAmount = investment.initialAmount || investment.amount;
+  const annualRate = investment.returnRate / 100;
+  const dailyRate = Math.pow(1 + annualRate, 1/365) - 1;
+  const currentValue = initialAmount * Math.pow(1 + dailyRate, daysElapsed);
+  const earnings = currentValue - initialAmount;
+  
+  // Verificar se precisa atualizar (diferença maior que R$ 0.10)
+  const needsUpdate = Math.abs(currentValue - investment.amount) > 0.10;
+
+  return {
+    currentValue: currentValue,
+    earnings: earnings,
+    daysElapsed: daysElapsed,
+    needsUpdate: needsUpdate,
+    returnPercentage: (earnings / initialAmount) * 100
+  };
+}
+
+// Atualizar valor do investimento no banco
+async function updateInvestmentValue(id, newValue) {
+  try {
+    const investment = investments.find(i => i.id === id);
+    if (!investment) return;
+    
+    await api.updateInvestment(id, {
+      ...investment,
+      amount: newValue
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar valor:', error);
+  }
+}
+
 async function loadInvestments() {
   try {
     const response = await api.getInvestments();
     if (response.data.sucesso) {
       investments = response.data.investimentos;
+      
+      // Atualizar valores automaticamente
+      for (const investment of investments) {
+        const calc = calculateCurrentValue(investment);
+        if (calc.needsUpdate) {
+          investment.amount = calc.currentValue;
+          // Atualizar no banco em background
+          updateInvestmentValue(investment.id, calc.currentValue);
+        }
+      }
+      
       displayInvestments();
       updateTotal();
     }
@@ -86,7 +182,14 @@ function displayInvestments() {
     return;
   }
 
-  const html = investments.map(inv => `
+  const html = investments.map(inv => {
+    const calc = calculateCurrentValue(inv);
+    const currentValue = calc.currentValue;
+    const earnings = calc.earnings;
+    const daysElapsed = calc.daysElapsed;
+    const returnPercentage = calc.returnPercentage || 0;
+    
+    return `
     <div class="investment-card">
       <div class="investment-header">
         <div>
@@ -97,29 +200,37 @@ function displayInvestments() {
       </div>
       <div class="investment-details">
         <div class="detail-item">
-          <div class="detail-label">Valor Atual</div>
-          <div class="detail-value amount positive">R$ ${inv.amount.toFixed(2).replace('.', ',')}</div>
+          <div class="detail-label">Valor Atual ${daysElapsed > 0 ? '<span style="color: #10b981; font-size: 10px;">●</span>' : ''}</div>
+          <div class="detail-value amount positive">R$ ${currentValue.toFixed(2).replace('.', ',')}</div>
         </div>
         <div class="detail-item">
           <div class="detail-label">Valor Inicial</div>
-          <div class="detail-value">R$ ${inv.initialAmount.toFixed(2).replace('.', ',')}</div>
+          <div class="detail-value">R$ ${(inv.initialAmount || inv.amount).toFixed(2).replace('.', ',')}</div>
         </div>
         <div class="detail-item">
-          <div class="detail-label">Retorno</div>
-          <div class="detail-value return-rate">${inv.returnRate}%</div>
+          <div class="detail-label">Rendimento</div>
+          <div class="detail-value" style="color: ${earnings > 0 ? '#10b981' : '#6b7280'};">
+            ${earnings > 0 ? '+' : ''}R$ ${earnings.toFixed(2).replace('.', ',')}
+            ${earnings > 0 ? `<br><small style="font-size: 11px;">(+${returnPercentage.toFixed(2)}%)</small>` : ''}
+          </div>
         </div>
         <div class="detail-item">
-          <div class="detail-label">Início</div>
-          <div class="detail-value">${new Date(inv.startDate).toLocaleDateString('pt-BR')}</div>
+          <div class="detail-label">Taxa / Tempo</div>
+          <div class="detail-value return-rate" style="font-size: 13px;">
+            ${inv.returnRate ? inv.returnRate.toFixed(2) + '% a.a.' : 'N/A'}
+            ${inv.cdiPercent ? `<br><small style="font-size: 10px; color: #6b7280;">(${inv.cdiPercent}% CDI)</small>` : ''}
+            ${daysElapsed > 0 ? `<br><small style="font-size: 10px; color: #6b7280;">${daysElapsed} dias</small>` : ''}
+          </div>
         </div>
       </div>
-      ${inv.description ? `<p style="color: #666; margin-top: 10px;">${inv.description}</p>` : ''}
+      ${inv.description ? `<p style="color: #666; margin-top: 10px; font-size: 13px;">${inv.description}</p>` : ''}
       <div class="action-buttons" style="margin-top: 15px;">
         <button class="btn btn-small btn-secondary" onclick="editInvestment('${inv.id}')">Editar</button>
         <button class="btn btn-small btn-danger" onclick="deleteInvestment('${inv.id}')">Excluir</button>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   container.innerHTML = html;
 }
@@ -134,7 +245,8 @@ async function editInvestment(id) {
   document.getElementById('type').value = investment.type || '';
   document.getElementById('amount').value = investment.amount;
   document.getElementById('initialAmount').value = investment.initialAmount;
-  document.getElementById('returnRate').value = investment.returnRate;
+  document.getElementById('returnRate').value = investment.returnRate || '';
+  document.getElementById('cdiPercent').value = investment.cdiPercent || '';
   document.getElementById('description').value = investment.description || '';
   document.getElementById('startDate').value = investment.startDate.split('T')[0];
   document.getElementById('status').value = investment.status;

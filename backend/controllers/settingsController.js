@@ -12,7 +12,7 @@ class SettingsController {
         theme: 'light',
         categories: {
           income: ['Salário', 'Freelance', 'Investimentos', 'Outros'],
-          expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Outros']
+          expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Investimentos', 'Outros']
         }
       };
 
@@ -49,7 +49,7 @@ class SettingsController {
         theme: 'light',
         categories: {
           income: ['Salário', 'Freelance', 'Investimentos', 'Outros'],
-          expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Outros']
+          expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Investimentos', 'Outros']
         }
       };
 

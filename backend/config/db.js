@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 // Configuração do MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://alsj1520:152070an@cluster0.zvfhmzd.mongodb.net/meucontrole?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://alsj1520:152070an@cluster0.zvfhmzd.mongodb.net/?appName=Cluster0';
 
 // Configuração do banco de dados JSON (fallback)
 const DB_PATH = path.join(__dirname, '../../database/store.json');

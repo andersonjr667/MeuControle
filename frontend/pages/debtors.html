@@ -23,6 +23,18 @@
         <button class="btn btn-primary" id="add-debtor-btn">+ Novo Devedor</button>
       </div>
     </div>
+    <!-- Quick entry card (hidden by default) -->
+    <div id="quick-debtor-card" class="quick-card" style="display:none; margin-bottom:16px;">
+      <div class="quick-card-content">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <input id="quick-name" type="text" placeholder="Nome do devedor" style="flex:1 1 300px; padding:8px; border-radius:6px; border:1px solid #e5e7eb;">
+          <input id="quick-desc" type="text" placeholder="Descrição (opcional)" style="flex:2 1 360px; padding:8px; border-radius:6px; border:1px solid #e5e7eb;">
+          <button id="quick-continue" class="btn btn-primary" style="white-space:nowrap;">Criar</button>
+          <button id="quick-cancel" class="btn btn-secondary" style="white-space:nowrap;">Cancelar</button>
+        </div>
+        <div id="quick-error" style="color:#b91c1c; font-size:13px; margin-top:8px; display:none;">Nome obrigatório</div>
+      </div>
+    </div>
 
     <div class="card">
       <div class="card-header">
@@ -33,45 +45,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div id="debtor-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="modal-title">Novo Devedor</h3>
-        <button class="close-btn" id="close-modal">&times;</button>
-      </div>
-      <form id="debtor-form">
-        <div class="form-group">
-          <label for="name">Nome *</label>
-          <input type="text" id="name" required>
-        </div>
-        <div class="form-group">
-          <label for="amount">Valor *</label>
-          <input type="number" id="amount" step="0.01" min="0" required>
-        </div>
-        <div class="form-group">
-          <label for="description">Descrição</label>
-          <textarea id="description"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="dueDate">Data de Vencimento</label>
-          <input type="date" id="dueDate">
-        </div>
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status">
-            <option value="pendente">Pendente</option>
-            <option value="pago">Pago</option>
-            <option value="atrasado">Atrasado</option>
-          </select>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancel-btn">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Modal removed: quick-entry card replaces the modal form -->
 
   <script src="/js/api.js"></script>
   <script src="/js/header.js"></script>

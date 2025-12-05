@@ -1,4 +1,5 @@
 const investmentsModel = require('../models/investmentsModel');
+const transactionsModel = require('../models/transactionsModel');
 
 class InvestmentsController {
   // Listar todos os investimentos do usuário
@@ -61,7 +62,7 @@ class InvestmentsController {
   // Criar novo investimento
   async create(req, res) {
     try {
-      const { name, type, amount, initialAmount, returnRate, description, startDate, endDate, status } = req.body;
+      const { name, type, amount, initialAmount, returnRate, description, startDate, endDate, status, cdiPercent } = req.body;
 
       // Validação
       if (!name || amount === undefined) {
@@ -78,10 +79,22 @@ class InvestmentsController {
         amount,
         initialAmount,
         returnRate,
+        cdiPercent,
         description,
         startDate,
         endDate,
         status
+      });
+
+      // Criar transação de saída (investimento é um gasto)
+      const investmentAmount = initialAmount || amount;
+      await transactionsModel.create({
+        userId: req.userId,
+        description: `Investimento: ${name}`,
+        amount: investmentAmount,
+        type: 'saida',
+        category: 'Investimentos',
+        date: startDate || new Date().toISOString()
       });
 
       res.status(201).json({

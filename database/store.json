@@ -173,6 +173,29 @@
           "Outros"
         ]
       }
+    },
+    "693306c9c093c3b426e188d3": {
+      "currency": "BRL",
+      "language": "pt-BR",
+      "notifications": true,
+      "theme": "light",
+      "categories": {
+        "income": [
+          "Salário",
+          "Freelance",
+          "Investimentos",
+          "Outros"
+        ],
+        "expense": [
+          "Alimentação",
+          "Lazer",
+          "Saúde",
+          "Investimentos",
+          "Outros",
+          "GitHub Copilot"
+        ]
+      },
+      "updatedAt": "2025-12-05T17:43:10.603Z"
     }
   },
   "debtHistory": [
@@ -197,6 +220,83 @@
       "description": "Dívida atualizada: Pedro Oliveira - Status alterado para pago",
       "date": "2025-11-28T10:00:00.000Z",
       "createdAt": "2025-11-28T10:00:00.000Z"
+    },
+    {
+      "id": "mit502h5aqrxz9ch8gb",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "693315dcf651110bc2da4f5a",
+      "debtorName": "Aninha",
+      "amount": 0,
+      "action": "criado",
+      "description": "Dívida criada: Aninha",
+      "date": "2025-12-05T17:26:52.553Z",
+      "createdAt": "2025-12-05T17:26:52.553Z"
+    },
+    {
+      "id": "mit519g4sdpkc5nlaxi",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "69331614f651110bc2da4f5d",
+      "debtorName": "André",
+      "amount": 0,
+      "action": "criado",
+      "description": "Dívida criada: André",
+      "date": "2025-12-05T17:27:48.244Z",
+      "createdAt": "2025-12-05T17:27:48.244Z"
+    },
+    {
+      "id": "mit51gujiuqbbmtkhms",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "6933161df651110bc2da4f60",
+      "debtorName": "Breno",
+      "amount": 0,
+      "action": "criado",
+      "description": "Dívida criada: Breno",
+      "date": "2025-12-05T17:27:57.835Z",
+      "createdAt": "2025-12-05T17:27:57.835Z"
+    },
+    {
+      "id": "mit51pqam9od741ga3",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "69331629f651110bc2da4f63",
+      "debtorName": "Verônica",
+      "amount": 0,
+      "action": "criado",
+      "description": "Dívida criada: Verônica",
+      "date": "2025-12-05T17:28:09.346Z",
+      "createdAt": "2025-12-05T17:28:09.346Z"
+    },
+    {
+      "id": "mit52vrgu2w5msraoz",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "693315dcf651110bc2da4f5a",
+      "debtorName": "Aninha",
+      "amount": 30,
+      "action": "atualizado",
+      "description": "Dívida atualizada: Aninha",
+      "date": "2025-12-05T17:29:03.820Z",
+      "createdAt": "2025-12-05T17:29:03.820Z"
+    },
+    {
+      "id": "mit55dfxmcotufe74q",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "69331614f651110bc2da4f5d",
+      "debtorName": "André",
+      "amount": 20,
+      "action": "atualizado",
+      "description": "Dívida atualizada: André",
+      "date": "2025-12-05T17:31:00.045Z",
+      "createdAt": "2025-12-05T17:31:00.045Z"
+    },
+    {
+      "id": "mit55np96ubpcusl3e",
+      "userId": "693306c9c093c3b426e188d3",
+      "debtorId": "6933161df651110bc2da4f60",
+      "debtorName": "Breno",
+      "amount": 20,
+      "action": "atualizado",
+      "description": "Dívida atualizada: Breno",
+      "date": "2025-12-05T17:31:13.341Z",
+      "createdAt": "2025-12-05T17:31:13.341Z"
     }
   ]
 }

@@ -2,7 +2,7 @@ let transactions = [];
 let editingId = null;
 let categories = {
   income: ['Salário', 'Freelance', 'Investimentos', 'Outros'],
-  expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Outros']
+  expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Investimentos', 'Outros']
 };
 
 // Elements
@@ -21,7 +21,6 @@ async function loadCategories() {
     const response = await api.getSettings();
     if (response.data.sucesso && response.data.configuracoes.categories) {
       categories = response.data.configuracoes.categories;
-      updateCategoryOptions();
     }
   } catch (error) {
     console.error('Erro ao carregar categorias:', error);
@@ -31,11 +30,18 @@ async function loadCategories() {
 // Atualizar opções de categoria com base no tipo
 function updateCategoryOptions() {
   const type = typeSelect.value;
-  const categoryList = type === 'income' ? categories.income : categories.expense;
   
-  categorySelect.innerHTML = categoryList.map(cat => 
-    `<option value="${cat}">${cat}</option>`
-  ).join('');
+  if (!type) {
+    categorySelect.innerHTML = '<option value="">Selecione um tipo primeiro</option>';
+    categorySelect.disabled = true;
+    return;
+  }
+  
+  categorySelect.disabled = false;
+  const categoryList = type === 'entrada' ? categories.income : categories.expense;
+  
+  categorySelect.innerHTML = '<option value="">Selecione uma categoria</option>' + 
+    categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
 }
 
 // Listener para mudança de tipo
@@ -47,6 +53,7 @@ addBtn.addEventListener('click', () => {
   form.reset();
   document.getElementById('modal-title').textContent = 'Nova Transação';
   document.getElementById('date').valueAsDate = new Date();
+  updateCategoryOptions(); // Resetar categorias
   modal.classList.add('active');
 });
 
@@ -61,25 +68,35 @@ filterType.addEventListener('change', displayTransactions);
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
+  // Pegar a data e adicionar horário local para evitar problema de timezone
+  const dateValue = document.getElementById('date').value;
+  const dateWithTime = dateValue ? `${dateValue}T12:00:00` : new Date().toISOString();
+
   const data = {
     type: document.getElementById('type').value,
     category: document.getElementById('category').value,
     amount: parseFloat(document.getElementById('amount').value),
     description: document.getElementById('description').value,
-    date: document.getElementById('date').value
+    date: dateWithTime
   };
 
+  console.log('Enviando dados:', data);
+
   try {
+    let response;
     if (editingId) {
-      await api.updateTransaction(editingId, data);
+      response = await api.updateTransaction(editingId, data);
     } else {
-      await api.createTransaction(data);
+      response = await api.createTransaction(data);
     }
+
+    console.log('Resposta:', response);
 
     modal.classList.remove('active');
     loadTransactions();
   } catch (error) {
-    alert('Erro ao salvar transação');
+    console.error('Erro completo:', error);
+    alert('Erro ao salvar transação: ' + (error.response?.data?.mensagem || error.message));
   }
 });
 

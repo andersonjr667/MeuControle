@@ -25,8 +25,8 @@ const DebtorSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'paid', 'overdue'],
-    default: 'pending'
+    enum: ['pendente', 'pago', 'atrasado', 'pending', 'paid', 'overdue'],
+    default: 'pendente'
   }
 }, {
   timestamps: true,
