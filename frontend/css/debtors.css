@@ -182,3 +182,38 @@ tr:hover {
     padding: 20px;
   }
 }
+
+@media (max-width: 480px) {
+  .quick-card {
+    padding: 12px;
+  }
+
+  .quick-card-content input {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+  }
+
+  .status-badge {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-content {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    padding: 16px;
+  }
+}
