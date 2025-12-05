@@ -378,23 +378,64 @@ function simulateInvestment() {
   const yearlyReturn = (Math.pow(finalValue / totalInvested, 1 / years) - 1) * 100;
   const monthlyReturn = (finalValue - totalInvested) / months;
 
-  // Exibir resultados principais
-  document.getElementById('result-invested').textContent = 
-    'R$ ' + totalInvested.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  document.getElementById('result-earnings').textContent = 
-    'R$ ' + grossEarnings.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  document.getElementById('result-tax').textContent = 
-    'R$ ' + taxes.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  document.getElementById('result-total').textContent = 
-    'R$ ' + finalValue.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  // Usar API para calcular (fallback para cálculo local em caso de erro)
+  const simulationPayload = {
+    initial,
+    monthly,
+    rate,
+    years,
+    inflation,
+    taxRate,
+    yearlyIncrease
+  };
 
-  // Métricas adicionais
-  document.getElementById('metric-return').textContent = returnPercentage + '%';
-  document.getElementById('metric-yearly').textContent = yearlyReturn.toFixed(2) + '% a.a.';
-  document.getElementById('metric-real').textContent = 
-    'R$ ' + realFinalValue.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  document.getElementById('metric-real-gain').textContent = 
-    'R$ ' + (realFinalValue - totalInvested).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  api.calculateInvestment(simulationPayload).then(response => {
+    if (response && response.data && response.data.sucesso && response.data.result) {
+      const r = response.data.result;
+      document.getElementById('result-invested').textContent = 'R$ ' + (r.totalInvested || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('result-earnings').textContent = 'R$ ' + (r.grossEarnings || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('result-tax').textContent = 'R$ ' + (r.taxes || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('result-total').textContent = 'R$ ' + (r.finalValue || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+      document.getElementById('metric-return').textContent = (r.returnPercentage || 0).toFixed(2) + '%';
+      document.getElementById('metric-yearly').textContent = (r.yearlyReturn || 0).toFixed(2) + '% a.a.';
+      document.getElementById('metric-real').textContent = 'R$ ' + (r.realFinalValue || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('metric-real-gain').textContent = 'R$ ' + ((r.realFinalValue || 0) - (r.totalInvested || 0)).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+      // Exibir histórico no gráfico (nominal, investido e real)
+      createSimulationChart(r.balanceHistory || [], r.investedHistory || [], r.realValueHistory || [], years);
+      document.getElementById('simulator-results').style.display = 'block';
+    } else {
+      // fallback: usar cálculo local
+      renderLocalSimulationResults();
+    }
+  }).catch(err => {
+    console.warn('API de simulação falhou, usando cálculo local', err);
+    renderLocalSimulationResults();
+  });
+
+  function renderLocalSimulationResults() {
+    // Exibir resultados principais (cálculo local)
+    document.getElementById('result-invested').textContent = 
+      'R$ ' + totalInvested.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    document.getElementById('result-earnings').textContent = 
+      'R$ ' + grossEarnings.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    document.getElementById('result-tax').textContent = 
+      'R$ ' + taxes.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    document.getElementById('result-total').textContent = 
+      'R$ ' + finalValue.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    // Métricas adicionais
+    document.getElementById('metric-return').textContent = returnPercentage + '%';
+    document.getElementById('metric-yearly').textContent = yearlyReturn.toFixed(2) + '% a.a.';
+    document.getElementById('metric-real').textContent = 
+      'R$ ' + realFinalValue.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    document.getElementById('metric-real-gain').textContent = 
+      'R$ ' + (realFinalValue - totalInvested).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    createSimulationChart(balanceHistory, investedHistory, realValueHistory, years);
+    document.getElementById('simulator-results').style.display = 'block';
+  }
 
   // Informações adicionais
   document.getElementById('info-period').textContent = months;

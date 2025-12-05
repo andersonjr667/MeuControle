@@ -7,6 +7,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.use(authMiddleware);
 
 router.get('/', (req, res) => investmentsController.getAll(req, res));
+router.post('/calculate', (req, res) => investmentsController.calculate(req, res));
 router.get('/total', (req, res) => investmentsController.getTotalInvested(req, res));
 router.get('/:id', (req, res) => investmentsController.getById(req, res));
 router.post('/', (req, res) => investmentsController.create(req, res));

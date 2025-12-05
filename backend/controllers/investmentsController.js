@@ -206,6 +206,77 @@ class InvestmentsController {
       });
     }
   }
+
+  // Calcular simulação de investimento (API para o frontend)
+  async calculate(req, res) {
+    try {
+      const {
+        initial = 0,
+        monthly = 0,
+        rate = 0,
+        years = 1,
+        inflation = 0,
+        taxRate = 0,
+        yearlyIncrease = 0
+      } = req.body;
+
+      const monthlyRate = (Number(rate) || 0) / 100 / 12;
+      const monthlyInflation = (Number(inflation) || 0) / 100 / 12;
+      const months = (Number(years) || 1) * 12;
+
+      let balance = Number(initial) || 0;
+      let currentMonthly = Number(monthly) || 0;
+      let totalInvested = balance;
+
+      const balanceHistory = [balance];
+      const investedHistory = [totalInvested];
+      const realValueHistory = [balance];
+
+      for (let i = 1; i <= months; i++) {
+        if (i % 12 === 0 && Number(yearlyIncrease) > 0) {
+          currentMonthly = currentMonthly * (1 + Number(yearlyIncrease) / 100);
+        }
+        balance = balance * (1 + monthlyRate) + currentMonthly;
+        totalInvested += currentMonthly;
+
+        const realValue = balance / Math.pow(1 + monthlyInflation, i);
+        balanceHistory.push(balance);
+        investedHistory.push(totalInvested);
+        realValueHistory.push(realValue);
+      }
+
+      const finalBalance = balance;
+      const grossEarnings = finalBalance - totalInvested;
+      const taxes = (grossEarnings * (Number(taxRate) || 0)) / 100;
+      const netEarnings = grossEarnings - taxes;
+      const finalValue = totalInvested + netEarnings;
+      const realFinalValue = realValueHistory[realValueHistory.length - 1];
+
+      const returnPercentage = totalInvested > 0 ? (netEarnings / totalInvested) * 100 : 0;
+      const yearlyReturn = totalInvested > 0 ? (Math.pow(finalValue / totalInvested, 1 / (Number(years) || 1)) - 1) * 100 : 0;
+
+      return res.json({
+        sucesso: true,
+        result: {
+          totalInvested,
+          grossEarnings,
+          taxes,
+          netEarnings,
+          finalValue,
+          realFinalValue,
+          returnPercentage,
+          yearlyReturn,
+          months,
+          balanceHistory,
+          investedHistory,
+          realValueHistory
+        }
+      });
+    } catch (error) {
+      console.error('Erro na simulação de investimento:', error);
+      res.status(500).json({ sucesso: false, mensagem: 'Erro ao calcular simulação', erro: error.message });
+    }
+  }
 }
 
 module.exports = new InvestmentsController();

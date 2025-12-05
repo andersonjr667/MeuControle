@@ -196,6 +196,13 @@ const api = {
     return this.request('/investments/total');
   },
 
+  async calculateInvestment(simulation) {
+    return this.request('/investments/calculate', {
+      method: 'POST',
+      body: JSON.stringify(simulation)
+    });
+  },
+
   // Histórico de dívidas
   async getDebtHistory() {
     return this.request('/debt-history');
