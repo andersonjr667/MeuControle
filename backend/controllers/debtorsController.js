@@ -107,7 +107,17 @@ class DebtorsController {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const updates = req.body;
+      const updates = { ...req.body };
+      const actionType = updates.actionType; // pagou | emprestou | undefined
+      const actionValue = updates.actionValue;
+      const actionDate = updates.actionDate;
+      const actionDesc = updates.actionDescription;
+
+      // Remover metadados que não devem ser salvos no devedor
+      delete updates.actionType;
+      delete updates.actionValue;
+      delete updates.actionDate;
+      delete updates.actionDescription;
 
       // Verificar se o devedor existe e pertence ao usuário
       const debtor = await debtorModel.findById(id);
@@ -128,13 +138,21 @@ class DebtorsController {
       const updatedDebtor = await debtorModel.update(id, updates);
 
       // Registrar no histórico
+      const isBalanceAction = actionType === 'pagou' || actionType === 'emprestou';
+      const historyAction = isBalanceAction ? actionType : 'atualizado';
+      const historyAmount = isBalanceAction && actionValue ? actionValue : updatedDebtor.amount;
+      const historyDescription = isBalanceAction
+        ? `${actionType === 'pagou' ? 'Pagamento registrado' : 'Empréstimo registrado'}: R$ ${Number(historyAmount).toFixed(2)}${actionDesc ? ` - ${actionDesc}` : ''}`
+        : `Dívida atualizada: ${updatedDebtor.name}`;
+
       await debtHistoryModel.create({
         userId: req.userId,
         debtorId: updatedDebtor.id,
         debtorName: updatedDebtor.name,
-        amount: updatedDebtor.amount,
-        action: 'atualizado',
-        description: `Dívida atualizada: ${updatedDebtor.name}`
+        amount: historyAmount,
+        action: historyAction,
+        description: historyDescription,
+        date: actionDate || undefined
       });
 
       res.json({

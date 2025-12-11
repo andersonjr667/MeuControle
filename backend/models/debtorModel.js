@@ -133,6 +133,17 @@ class DebtorModel {
     jsonStore.updateTable('debtors', remaining);
     return true;
   }
+
+  // Zerar valores de dívida mantendo cadastros
+  async resetAmountsByUser(userId) {
+    const all = jsonStore.getTable('debtors') || [];
+    const updated = all.map(d => {
+      if (d.userId !== userId) return d;
+      return { ...d, amount: 0, updatedAt: new Date().toISOString() };
+    });
+    jsonStore.updateTable('debtors', updated);
+    return true;
+  }
 }
 
 module.exports = new DebtorModel();

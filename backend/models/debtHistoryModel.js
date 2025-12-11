@@ -10,9 +10,9 @@ class DebtHistoryModel {
         debtorId: historyData.debtorId,
         debtorName: historyData.debtorName,
         amount: parseFloat(historyData.amount) || 0,
-        action: historyData.action, // criado, atualizado, deletado, pago
+        action: historyData.action, // criado, atualizado, deletado, pago, emprestou
         description: historyData.description || '',
-        date: new Date().toISOString(),
+        date: historyData.date || new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
 

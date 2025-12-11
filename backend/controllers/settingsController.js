@@ -91,6 +91,18 @@ class SettingsController {
 
       const userId = req.userId;
       switch (scope) {
+        case 'all_data':
+          await transactionsModel.deleteManyByUser(userId);
+          await investmentsModel.deleteManyByUser(userId);
+          await debtorModel.deleteManyByUser(userId);
+          await debtHistoryModel.deleteManyByUser(userId);
+          // limpar configurações para voltar ao padrão
+          const data = jsonStore.read();
+          if (data.settings && data.settings[userId]) {
+            delete data.settings[userId];
+            jsonStore.write(data);
+          }
+          break;
         case 'transactions_all':
           await transactionsModel.deleteManyByUser(userId);
           break;
@@ -105,6 +117,9 @@ class SettingsController {
           break;
         case 'debtors_all':
           await debtorModel.deleteManyByUser(userId);
+          break;
+        case 'debtors_reset':
+          await debtorModel.resetAmountsByUser(userId);
           break;
         case 'debtHistory_all':
           await debtHistoryModel.deleteManyByUser(userId);
