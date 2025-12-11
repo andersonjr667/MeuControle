@@ -66,8 +66,22 @@ function normalizeToDate(dateStr) {
 }
 
 function formatDateForInput(dateStr) {
-  const d = normalizeToDate(dateStr);
+  const d = fixSwappedDecember(normalizeToDate(dateStr));
   return d.toISOString().split('T')[0];
+}
+
+// Heurística adicional: alguns registros antigos ficaram como 12/MM em vez de MM/12 (todas transações de dezembro).
+// Se o dia for 12 e o mês NÃO for dezembro, consideramos inversão e trocamos (novo dia = mês original, mês = 12).
+function fixSwappedDecember(dateObj) {
+  if (!(dateObj instanceof Date) || isNaN(dateObj)) return new Date();
+  const day = dateObj.getUTCDate();
+  const month = dateObj.getUTCMonth(); // 0-11
+  if (day === 12 && month !== 11) {
+    const year = dateObj.getUTCFullYear();
+    const newDay = month + 1; // mês vira dia
+    return new Date(Date.UTC(year, 11, newDay)); // dezembro (11)
+  }
+  return dateObj;
 }
 
 // Elements
@@ -218,9 +232,11 @@ function displayTransactions() {
         </tr>
       </thead>
       <tbody>
-        ${filtered.map(t => `
+        ${filtered.map(t => {
+          const fixedDate = fixSwappedDecember(normalizeToDate(t.date));
+          return `
           <tr>
-            <td>${normalizeToDate(t.date).toLocaleDateString('pt-BR')}</td>
+            <td>${fixedDate.toLocaleDateString('pt-BR')}</td>
             <td>${t.description || 'Sem descrição'}</td>
             <td>${t.category || '-'}</td>
             <td><span class="type-badge ${t.type}">${t.type}</span></td>
@@ -234,7 +250,7 @@ function displayTransactions() {
               </div>
             </td>
           </tr>
-        `).join('')}
+        `;}).join('')}
       </tbody>
     </table>
   `;
