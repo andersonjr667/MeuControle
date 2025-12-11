@@ -1,5 +1,9 @@
 // Configuração da API
-const API_URL = 'http://localhost:4000/api';
+// Use a origem atual (quando o frontend é servido pelo backend) ou
+// fallback para localhost:3000 (valor padrão do backend definido em .env)
+const API_URL = (window.location && window.location.origin && window.location.origin !== 'null')
+  ? `${window.location.origin}/api`
+  : 'http://localhost:3000/api';
 
 // Funções auxiliares para requisições
 const api = {
