@@ -1,6 +1,29 @@
 let debtors = [];
 let editingId = null;
 
+// Helper: normaliza strings de data para um objeto Date robusto
+function normalizeToDateDebtors(dateStr) {
+  if (!dateStr) return new Date();
+  if (dateStr instanceof Date) return dateStr;
+  if (typeof dateStr === 'string' && (dateStr.includes('T') || dateStr.includes('-'))) {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  if (typeof dateStr === 'string' && dateStr.includes('/')) {
+    const parts = dateStr.split('/').map(p => parseInt(p, 10));
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      const d = new Date(year, month - 1, day);
+      if (!isNaN(d)) return d;
+    }
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  return new Date(dateStr);
+}
+
 const addBtn = document.getElementById('add-debtor-btn');
 
 // Quick entry card elements (creation-only)
@@ -85,7 +108,7 @@ function computeDebtorStatus(d) {
   // se houver data de vencimento e já passou -> 'atrasado'
   if (d.dueDate) {
     try {
-      const due = new Date(d.dueDate);
+      const due = normalizeToDateDebtors(d.dueDate);
       // comparar somente a parte da data (sem hora)
       const dueYMD = due.toISOString().split('T')[0];
       const todayYMD = new Date().toISOString().split('T')[0];
@@ -111,7 +134,7 @@ function displayDebtors() {
       <td>${d.name}</td>
       <td class="amount negative">R$ ${d.amount.toFixed(2).replace('.', ',')}</td>
       <td>${d.description || '-'}</td>
-      <td>${d.dueDate ? new Date(d.dueDate).toLocaleDateString('pt-BR') : '-'}</td>
+      <td>${d.dueDate ? normalizeToDateDebtors(d.dueDate).toLocaleDateString('pt-BR') : '-'}</td>
       <td><span class="status-badge ${d.computedStatusClass}">${d.computedStatusLabel}</span></td>
       <td>
         <div class="action-buttons">

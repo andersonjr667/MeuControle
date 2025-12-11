@@ -5,6 +5,39 @@ let categories = {
   expense: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Investimentos', 'Outros']
 };
 
+// Helper: normaliza strings de data para um objeto Date robusto
+function normalizeToDate(dateStr) {
+  if (!dateStr) return new Date();
+  // já é Date
+  if (dateStr instanceof Date) return dateStr;
+  // ISO-like (contains T or '-')
+  if (typeof dateStr === 'string' && (dateStr.includes('T') || dateStr.includes('-'))) {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  // formato DD/MM/YYYY
+  if (typeof dateStr === 'string' && dateStr.includes('/')) {
+    const parts = dateStr.split('/').map(p => parseInt(p, 10));
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      const d = new Date(year, month - 1, day);
+      if (!isNaN(d)) return d;
+    }
+  }
+  // formato YYYY-MM-DD simples
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  // fallback
+  return new Date(dateStr);
+}
+
+function formatDateForInput(dateStr) {
+  const d = normalizeToDate(dateStr);
+  return d.toISOString().split('T')[0];
+}
+
 // Elements
 const modal = document.getElementById('transaction-modal');
 const form = document.getElementById('transaction-form');
@@ -149,7 +182,7 @@ function displayTransactions() {
       <tbody>
         ${filtered.map(t => `
           <tr>
-            <td>${new Date(t.date).toLocaleDateString('pt-BR')}</td>
+            <td>${normalizeToDate(t.date).toLocaleDateString('pt-BR')}</td>
             <td>${t.description || 'Sem descrição'}</td>
             <td>${t.category || '-'}</td>
             <td><span class="type-badge ${t.type}">${t.type}</span></td>
@@ -183,7 +216,7 @@ async function editTransaction(id) {
   document.getElementById('category').value = transaction.category;
   document.getElementById('amount').value = transaction.amount;
   document.getElementById('description').value = transaction.description;
-  document.getElementById('date').value = transaction.date.split('T')[0];
+  document.getElementById('date').value = formatDateForInput(transaction.date);
 
   modal.classList.add('active');
 }

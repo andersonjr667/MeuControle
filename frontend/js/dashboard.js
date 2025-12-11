@@ -3,6 +3,33 @@ let monthlyChart = null;
 let expensesChart = null;
 let evolutionChart = null;
 
+// Helper: normaliza strings de data para um objeto Date robusto
+function normalizeToDateDashboard(dateStr) {
+  if (!dateStr) return new Date();
+  if (dateStr instanceof Date) return dateStr;
+  if (typeof dateStr === 'string' && (dateStr.includes('T') || dateStr.includes('-'))) {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  if (typeof dateStr === 'string' && dateStr.includes('/')) {
+    const parts = dateStr.split('/').map(p => parseInt(p, 10));
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      const d = new Date(year, month - 1, day);
+      if (!isNaN(d)) return d;
+    }
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d;
+  }
+  return new Date(dateStr);
+}
+
+function formatDateForInputDashboard(dateStr) {
+  return normalizeToDateDashboard(dateStr).toISOString().split('T')[0];
+}
+
 // Calcular valor atual e rendimento do investimento
 function calculateInvestmentEarnings(investment) {
   if (!investment.returnRate || investment.returnRate <= 0 || investment.status !== 'ativo') {
@@ -93,11 +120,11 @@ async function loadDashboard() {
     if (transactionsResponse.data.sucesso) {
       const transactions = transactionsResponse.data.transacoes;
       
-      // Contar transações de hoje
+      // Contar transações de hoje (normalize date strings first)
       const today = new Date().toISOString().split('T')[0];
-      const todayTransactions = transactions.filter(t => 
-        t.date.split('T')[0] === today
-      );
+      const todayTransactions = transactions.filter(t => (
+        normalizeToDateDashboard(t.date).toISOString().split('T')[0] === today
+      ));
       
       document.getElementById('transactions-today').textContent = todayTransactions.length;
       
@@ -142,7 +169,7 @@ function displayRecentTransactions(transactions) {
             <td class="amount ${t.type === 'entrada' ? 'positive' : 'negative'}">
               ${t.type === 'entrada' ? '+' : '-'} R$ ${t.amount.toFixed(2).replace('.', ',')}
             </td>
-            <td>${new Date(t.date).toLocaleDateString('pt-BR')}</td>
+            <td>${normalizeToDateDashboard(t.date).toLocaleDateString('pt-BR')}</td>
           </tr>
         `).join('')}
       </tbody>
