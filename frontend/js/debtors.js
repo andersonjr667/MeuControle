@@ -139,6 +139,7 @@ function displayDebtors() {
       <td>
         <div class="action-buttons">
           <button class="btn btn-small btn-secondary" onclick="showBalanceForm('${d.id}')">Saldo</button>
+          <button class="btn btn-small btn-info" onclick="showDebtorHistory('${d.id}')">Ver</button>
           <button class="btn btn-small btn-danger" onclick="deleteDebtor('${d.id}')">Excluir</button>
         </div>
       </td>
@@ -201,6 +202,108 @@ document.addEventListener('DOMContentLoaded', loadDebtors);
 function removeBalanceForm() {
   const existing = document.getElementById('balance-form-row');
   if (existing) existing.remove();
+}
+
+// Remove any existing history row
+function removeHistoryRow() {
+  const existing = document.getElementById('debtor-history-row');
+  if (existing) existing.remove();
+}
+
+// Mostrar histórico de transações relacionadas ao devedor
+window.showDebtorHistory = async function(debtorId) {
+  removeHistoryRow();
+  const debtor = debtors.find(d => d.id === debtorId);
+  if (!debtor) return;
+
+  // inserir card abaixo da tabela (criar uma linha única que ocupe a tabela)
+  const table = document.querySelector('#debtors-table table');
+  if (!table) return;
+
+  const tr = document.createElement('tr');
+  tr.id = 'debtor-history-row';
+  tr.innerHTML = `
+    <td colspan="6">
+      <div class="debtor-history-card" style="padding:12px; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong>Histórico - ${debtor.name}</strong>
+          <div>
+            <button id="close-history" class="btn btn-small btn-secondary" style="margin-right:8px;">Fechar</button>
+          </div>
+        </div>
+        <div id="debtor-history-content">Carregando histórico...</div>
+      </div>
+    </td>
+  `;
+
+  // inserir logo após a linha do devedor
+  const rowButton = Array.from(table.querySelectorAll('button')).find(b => b.getAttribute('onclick')?.includes(debtorId));
+  if (rowButton) {
+    const row = rowButton.closest('tr');
+    row.parentNode.insertBefore(tr, row.nextSibling);
+  } else {
+    table.querySelector('tbody').appendChild(tr);
+  }
+
+  document.getElementById('close-history').addEventListener('click', () => removeHistoryRow());
+
+  try {
+    // Chama endpoint para obter histórico do devedor (se disponível)
+    let response;
+    if (api.getDebtHistoryByDebtor) {
+      response = await api.getDebtHistoryByDebtor(debtorId);
+    } else {
+      // fallback: carregar todas as transações e filtrar localmente
+      response = await api.getTransactions();
+    }
+
+    let transactions = [];
+    if (response && response.data) {
+      if (response.data.transacoes) transactions = response.data.transacoes.filter(t => t.category && t.category.includes(debtor.name));
+      if (response.data.result) transactions = response.data.result; // support different shape
+      if (Array.isArray(response.data) && response.data.length) transactions = response.data;
+    }
+
+    // If we called getTransactions fallback, filter by category containing the debtor name (best-effort)
+    if (!transactions.length && response && response.data && response.data.transacoes) {
+      transactions = response.data.transacoes.filter(t => t.category && t.category.includes(debtor.name));
+    }
+
+    const contentEl = document.getElementById('debtor-history-content');
+    if (!transactions || transactions.length === 0) {
+      contentEl.innerHTML = '<div style="padding:8px; color:#6b7280;">Nenhuma transação encontrada para este devedor.</div>';
+      return;
+    }
+
+    const rows = transactions.map(tx => `
+      <tr>
+        <td>${normalizeToDateDebtors(tx.date).toLocaleDateString('pt-BR')}</td>
+        <td>${tx.description || (tx.category || '')}</td>
+        <td class="amount ${tx.type === 'entrada' ? 'positive' : 'negative'}">${tx.type === 'entrada' ? '+' : '-'} R$ ${Number(tx.amount).toFixed(2).replace('.', ',')}</td>
+      </tr>
+    `).join('');
+
+    contentEl.innerHTML = `
+      <div style="overflow:auto; max-height:260px;">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="text-align:left; border-bottom:1px solid #e5e7eb;">
+              <th style="padding:8px">Data</th>
+              <th style="padding:8px">Descrição</th>
+              <th style="padding:8px">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (error) {
+    const contentEl = document.getElementById('debtor-history-content');
+    if (contentEl) contentEl.innerHTML = `<div style="padding:8px; color:#b91c1c;">Erro ao carregar histórico</div>`;
+    console.error('Erro ao carregar histórico do devedor:', error);
+  }
 }
 
 // Mostrar formulário inline para registrar pagamento/emprestimo
